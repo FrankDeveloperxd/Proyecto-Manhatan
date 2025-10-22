@@ -1,24 +1,20 @@
-import { Outlet, Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "../features/auth/authStore";
-import TopBar from "../componets/layout/TopBar";
-import BottomNav from "../componets/layout/BottomNav";
-import { auth } from "../lib/firebase"; // 👈
+import AppShell from "./AppShell";
 
 export default function Guard() {
-  const { user } = useAuthStore();
-  const u = user ?? auth.currentUser; // 👈 evita que te pida “dos veces”
+  const { user, profile } = useAuthStore();
 
-  if (!u) return <Navigate to="/login" replace />;
+  // si no hay sesión → login
+  if (!user) return <Navigate to="/login" replace />;
+
+  // normalizamos el rol (solo admin | empleado)
+  const role: "admin" | "empleado" =
+    profile?.role === "admin" ? "admin" : "empleado";
 
   return (
-    <div className="min-h-dvh bg-neutral-50 text-neutral-900">
-      <TopBar />
-      <div className="max-w-7xl mx-auto">
-        <main className="p-4 md:p-6 pb-20 md:pb-6">
-          <Outlet />
-        </main>
-      </div>
-      <BottomNav />
-    </div>
+    <AppShell role={role}>
+      <Outlet />
+    </AppShell>
   );
 }

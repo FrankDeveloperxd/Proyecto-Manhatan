@@ -10,6 +10,7 @@ export interface Profile {
   code: string;
   area?: string;
   createdAt?: number;
+  photoURL?: string;
 }
 
 interface AuthState {

@@ -1,14 +1,11 @@
-import type { ReactNode } from "react";
+import type { PropsWithChildren } from "react";
 
-export default function Card({
-  className = "",
-  children,
-}: {
+interface Props extends PropsWithChildren {
   className?: string;
-  children: ReactNode;
-}) {
+}
+export default function Card({ children, className }: Props) {
   return (
-    <div className={`bg-white border border-neutral-200 rounded-2xl p-4 ${className}`}>
+    <div className={`bg-white border border-neutral-200 rounded-2xl p-4 ${className ?? ""}`}>
       {children}
     </div>
   );
