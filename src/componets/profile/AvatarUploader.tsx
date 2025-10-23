@@ -3,7 +3,7 @@ import { auth, db, storage } from "../../lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";
 
-/** SVG placeholder ligero y determinista por UID (sin red) */
+/** SVG placeholder ligero (iniciales) */
 function makePlaceholder(uid: string, size = 96) {
   const initials = (auth.currentUser?.email || "U")
     .split("@")[0]
@@ -26,27 +26,35 @@ function makePlaceholder(uid: string, size = 96) {
   return `data:image/svg+xml;charset=UTF-8,${svg}`;
 }
 
-/** Comprime la imagen a 256x256 JPG ~70% y devuelve dataURL */
-async function fileToDataURLCompressed(file: File): Promise<string> {
-  const img = await new Promise<HTMLImageElement>((res, rej) => {
-    const url = URL.createObjectURL(file);
-    const i = new Image();
-    i.onload = () => res(i);
-    i.onerror = rej;
-    i.src = url;
-  });
+/** Comprime cualquier imagen a JPG 256px máx con fondo blanco (si había transparencia). */
+async function fileToJpegDataURL(file: File, maxSide = 256): Promise<string> {
+  const objUrl = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.onerror = rej;
+      i.src = objUrl;
+    });
 
-  const canvas = document.createElement("canvas");
-  const MAX = 256;
-  const ratio = Math.max(img.width, img.height) / MAX;
-  const w = Math.round(img.width / (ratio || 1));
-  const h = Math.round(img.height / (ratio || 1));
-  canvas.width = w;
-  canvas.height = h;
+    const ratio = Math.max(img.width, img.height) / maxSide || 1;
+    const w = Math.round(img.width / ratio);
+    const h = Math.round(img.height / ratio);
 
-  const ctx = canvas.getContext("2d")!;
-  ctx.drawImage(img, 0, 0, w, h);
-  return canvas.toDataURL("image/jpeg", 0.7);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d")!;
+
+    // Fondo blanco para PNG/WEBP con transparencia
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL("image/jpeg", 0.7); // ~70% calidad
+  } finally {
+    URL.revokeObjectURL(objUrl);
+  }
 }
 
 export default function AvatarUploader({
@@ -71,37 +79,37 @@ export default function AvatarUploader({
 
     setBusy(true);
     try {
-      // 1) Comprimir
-      const dataUrl = await fileToDataURLCompressed(f);
+      // 1) Comprimir a JPG ligero
+      const dataUrl = await fileToJpegDataURL(f, 256);
 
-      // 2) Subir como data_url (evita preflight raros)
-      const path = `avatars/${uid}.jpg`;
+      // 2) Subir como data_url (evita preflight raros de CORS)
+      const path = `avatars/${uid}/avatar.jpg`;
       const storageRef = ref(storage, path);
       await uploadString(storageRef, dataUrl, "data_url");
 
-      // 3) Obtener URL de descarga
+      // 3) URL de descarga
       const downloadURL = await getDownloadURL(storageRef);
 
       // 4) Guardar en Firestore
       await updateDoc(doc(db, "users", uid), { photoURL: downloadURL });
 
       setLocalUrl(downloadURL);
-    } catch (err) {
-      // Fallback: sube/usa placeholder muy ligero
+    } catch {
+      // Fallback: subir placeholder
       try {
         const ph = makePlaceholder(uid, size);
-        const storageRef = ref(storage, `avatars/${uid}.jpg`);
+        const storageRef = ref(storage, `avatars/${uid}/avatar.jpg`);
         await uploadString(storageRef, ph, "data_url");
         const downloadURL = await getDownloadURL(storageRef);
         await updateDoc(doc(db, "users", uid), { photoURL: downloadURL });
         setLocalUrl(downloadURL);
       } catch {
-        // como último recurso: muestra el placeholder local sin subir
+        // Último recurso: mostrar placeholder local sin subir
         setLocalUrl(makePlaceholder(uid, size));
       }
     } finally {
       setBusy(false);
-      e.target.value = ""; // permite volver a elegir el mismo archivo
+      e.target.value = ""; // permite volver a elegir la misma imagen
     }
   };
 
@@ -117,7 +125,6 @@ export default function AvatarUploader({
         title="Cambiar avatar"
       >
         {show ? (
-          // dataURL ó https URL
           <img
             src={show}
             alt="Avatar"
@@ -132,7 +139,7 @@ export default function AvatarUploader({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*"            // 👈 acepta PNG/JPG/WEBP/HEIC (si el navegador soporta)
         className="hidden"
         onChange={onChange}
       />

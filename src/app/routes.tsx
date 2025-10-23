@@ -7,6 +7,7 @@ import Training from "../features/training/Training";
 import Attendance from "../features/attendance/Attendance";
 import Profile from "../features/profile/Profile";
 import Agenda from "../features/agenda/Agenda";
+import Inicio from "../features/start//Inicio"; // 👈 nuevo
 
 // Páginas admin (creadas abajo)
 import Users from "../features/admin/Users";
@@ -22,7 +23,7 @@ export const router = createBrowserRouter([
     path: "/app",
     element: <Guard />,
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <Inicio /> },
       { path: "sensors", element: <Sensors /> },
       { path: "training", element: <Training /> },
       { path: "attendance", element: <Attendance /> },
