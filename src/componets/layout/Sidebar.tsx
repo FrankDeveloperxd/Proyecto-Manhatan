@@ -9,20 +9,22 @@ type Props = {
 };
 
 const baseItems = [
-  { to: "/app",            label: "Inicio",   icon: "🏠" },
-  { to: "/app/sensors",    label: "Sensores", icon: "🛰️" },
-  { to: "/app/training",   label: "Capacitación", icon: "🎓" },
-  { to: "/app/attendance", label: "Asistencia",   icon: "🕒" },
-  { to: "/app/profile",    label: "Perfil",   icon: "👤" },
-  { to: "/app/agenda",     label: "Agenda",   icon: "🗓️" },
+  { to: "/app",            label: "Inicio",        icon: "🏠" },
+  { to: "/app/sensors",    label: "Sensores",      icon: "🛰️" },
+  { to: "/app/training",   label: "Capacitación",  icon: "🎓" },
+  { to: "/app/attendance", label: "Asistencia",    icon: "🕒" },
+  // ✅ Nuevo ítem
+  { to: "/app/workers",    label: "Trabajadores",  icon: "🧑‍🏭" },
+  { to: "/app/profile",    label: "Perfil",        icon: "👤" },
+  { to: "/app/agenda",     label: "Agenda",        icon: "🗓️" },
 ];
 
 const adminItems = [
-  { to: "/app/users",      label: "Usuarios (CRUD)",   icon: "👥" },
-  { to: "/app/assets",     label: "Activos (CRUD)",    icon: "🏢" },
-  { to: "/app/docs",       label: "Documentos",        icon: "📄" },
-  { to: "/app/analytics",  label: "Reportes",          icon: "📈" },
-  { to: "/app/settings",   label: "Ajustes",           icon: "⚙️" },
+  { to: "/app/users",      label: "Usuarios (CRUD)", icon: "👥" },
+  { to: "/app/assets",     label: "Activos (CRUD)",  icon: "🏢" },
+  { to: "/app/docs",       label: "Documentos",      icon: "📄" },
+  { to: "/app/analytics",  label: "Reportes",        icon: "📈" },
+  { to: "/app/settings",   label: "Ajustes",         icon: "⚙️" },
 ];
 
 export default function Sidebar({
