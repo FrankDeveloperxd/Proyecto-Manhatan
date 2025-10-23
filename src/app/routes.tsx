@@ -1,24 +1,27 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import Guard from "./guard";
-import Login from "../features/auth/Login";
-import Home from "../features/home/Home";
-import Sensors from "../features/sensors/Sensors";
-import Training from "../features/training/Training";
-import Attendance from "../features/attendance/Attendance";
-import Profile from "../features/profile/Profile";
 import Agenda from "../features/agenda/Agenda";
-import Inicio from "../features/start//Inicio"; // 👈 nuevo
+import Attendance from "../features/attendance/Attendance";
+import Login from "../features/auth/Login";
+import Profile, { PublicProfilePage } from "../features/profile/Profile"; // 👈 import también la ficha pública
+import Sensors from "../features/sensors/Sensors";
+import Inicio from "../features/start/Inicio"; // corregido (sin doble /)
+import Training from "../features/training/Training";
+import Guard from "./guard";
 
-// Páginas admin (creadas abajo)
-import Users from "../features/admin/Users";
+// Páginas admin
+import Analytics from "../features/admin/Analytics";
 import Assets from "../features/admin/Assets";
 import Docs from "../features/admin/Docs";
-import Analytics from "../features/admin/Analytics";
 import Settings from "../features/admin/Settings";
+import Users from "../features/admin/Users";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/login" replace /> },
   { path: "/login", element: <Login /> },
+
+  // 👇 Ruta pública para abrir fichas desde el QR
+  { path: "/ficha/:uid", element: <PublicProfilePage /> },
+
   {
     path: "/app",
     element: <Guard />,
@@ -39,3 +42,4 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
