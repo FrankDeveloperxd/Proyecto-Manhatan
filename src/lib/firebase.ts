@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
@@ -15,8 +15,16 @@ const firebaseConfig = {
   databaseURL: "https://proyecto-manhatan-2af0e-default-rtdb.firebaseio.com",
 };
 
-export const app  = initializeApp(firebaseConfig);
+// Inicializar app
+export const app = initializeApp(firebaseConfig);
+
+// Servicios principales
 export const auth = getAuth(app);
-export const db   = getFirestore(app);
+export const db = getFirestore(app);
 export const rtdb = getDatabase(app);
 export const storage = getStorage(app);
+
+// 🔹 Iniciar sesión anónima automática (para Firestore)
+signInAnonymously(auth)
+  .then(() => console.log("✅ Sesión anónima iniciada"))
+  .catch((error) => console.error("❌ Error al iniciar sesión anónima:", error));

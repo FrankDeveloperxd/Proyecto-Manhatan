@@ -135,7 +135,7 @@ export default function Sensors() {
 
       {/* mapa + emergencias + simulador */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
-        <MapLive />
+        <MapLive lat={0} lng={0} />
         <div className="rounded-3xl bg-white shadow p-4 flex flex-col gap-3">
           <EmergencyButton onClick={() => setEmOpen(true)} />
           <SimulatorPanel {...simProps} />
