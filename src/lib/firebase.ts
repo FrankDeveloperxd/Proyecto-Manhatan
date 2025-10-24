@@ -3,6 +3,7 @@ import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
+import { setPersistence, browserLocalPersistence } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAkl9fz6_7RJD0D0MAAFkTYJxDWTsBl-B0",
@@ -24,7 +25,4 @@ export const db = getFirestore(app);
 export const rtdb = getDatabase(app);
 export const storage = getStorage(app);
 
-// 🔹 Iniciar sesión anónima automática (para Firestore)
-signInAnonymously(auth)
-  .then(() => console.log("✅ Sesión anónima iniciada"))
-  .catch((error) => console.error("❌ Error al iniciar sesión anónima:", error));
+setPersistence(auth, browserLocalPersistence);

@@ -1,11 +1,13 @@
 import { useState, useRef } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../lib/firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import RadarBg from "./RadarBg";
 
 export default function Login() {
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const redirect = decodeURIComponent(params.get("redirect") || "/app");
   const [email, setEmail] = useState("");
   const [pass,  setPass ] = useState("");
   const [err,   setErr  ] = useState("");
@@ -34,7 +36,7 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email.trim(), pass);
       setOk(true);                 // pinta verde
-      setTimeout(() => nav("/app"), 450); // navega 1 sola vez
+      setTimeout(() => nav(redirect, { replace: true }), 450); // respeta redirect
     } catch (e: any) {
       setBad(true);                // pinta rojo
       setErr(mapError(e?.code));
