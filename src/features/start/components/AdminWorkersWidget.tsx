@@ -1,12 +1,95 @@
 // src/features/start/components/AdminWorkersWidget.tsx
 import { useState } from "react";
 import WorkersQuickPanel from "../../workers/WorkersQuickPanel";
+// arriba en tu archivo AdminWorkersWidget.tsx
 
 export default function AdminWorkersWidget() {
   const [open, setOpen] = useState(false);
 
   return (
     <>
+    {/* === NUEVO BLOQUE (arriba): Texto izquierda + Carrusel derecha === */}
+<section className="mb-8">
+  <div className="relative rounded-2xl p-[1px] bg-gradient-to-tr from-fuchsia-500 via-cyan-500 to-violet-500">
+    <div className="rounded-2xl bg-white/80 dark:bg-slate-900/70 backdrop-blur-md p-6 md:p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        {/* Texto izquierda */}
+        <div>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+            SAFETRACK 0.1
+          </h2>
+          <p className="mt-3 text-slate-600 dark:text-slate-300">
+            Centraliza la gestión del personal: registros, turnos y capacitaciones.
+            Visualiza en tiempo real el estado de cada colaborador.
+          </p>
+          <ul className="mt-4 space-y-2 text-sm">
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full bg-violet-500" />
+              Registra toda la informacion de tu personal ahora mas facil. 
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full bg-fuchsia-500" />
+              Fichas completas: contacto, cargo, alergias y estudios.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full bg-cyan-500" />
+              Ubicacion en tiempo real de tus trabajadores.
+            </li>
+          </ul>
+
+        </div>
+
+           {/* Carrusel derecha (CSS scroll-snap, sin hooks) */}
+<div className="order-first lg:order-none">
+  <div className="relative">
+    {/* Track */}
+    <div className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-2xl shadow-lg">
+      <a id="slide-1" className="min-w-full h-64 md:h-80 lg:h-96 snap-start relative block bg-slate-100 dark:bg-slate-800">
+        <img
+          src="/imagen1.png"
+          alt="Imagen 1"
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
+      </a>
+      <a id="slide-2" className="min-w-full h-64 md:h-80 lg:h-96 snap-start relative block bg-slate-100 dark:bg-slate-800">
+        <img
+          src="/imagen2.png"
+          alt="Imagen 2"
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
+      </a>
+      <a id="slide-3" className="min-w-full h-64 md:h-80 lg:h-96 snap-start relative block bg-slate-100 dark:bg-slate-800">
+        <img
+          src="/imagen3.png"
+          alt="Imagen 3"
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
+      </a>
+    </div>
+
+  
+            {/* Dots */}
+            <div className="flex justify-center gap-2 mt-3">
+              <a href="#slide-1" className="h-2.5 w-2.5 rounded-full bg-slate-400 hover:bg-slate-600" aria-label="Ir al slide 1" />
+              <a href="#slide-2" className="h-2.5 w-2.5 rounded-full bg-slate-400 hover:bg-slate-600" aria-label="Ir al slide 2" />
+              <a href="#slide-3" className="h-2.5 w-2.5 rounded-full bg-slate-400 hover:bg-slate-600" aria-label="Ir al slide 3" />
+              <a href="#slide-4" className="h-2.5 w-2.5 rounded-full bg-slate-400 hover:bg-slate-600" aria-label="Ir al slide 4" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
       <div className="relative rounded-2xl p-[1px] bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-cyan-500">
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/70 backdrop-blur-md p-5">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

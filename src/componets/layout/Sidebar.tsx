@@ -13,9 +13,7 @@ const baseItems = [
   { to: "/app/sensors",    label: "Sensores",      icon: "🛰️" },
   { to: "/app/training",   label: "Capacitación",  icon: "🎓" },
   { to: "/app/attendance", label: "Asistencia",    icon: "🕒" },
-  // ✅ Nuevo ítem
   { to: "/app/workers",    label: "Trabajadores",  icon: "🧑‍🏭" },
-  { to: "/app/profile",    label: "Perfil",        icon: "👤" },
   { to: "/app/agenda",     label: "Agenda",        icon: "🗓️" },
 ];
 
@@ -63,12 +61,12 @@ export default function Sidebar({
     <>
       {/* Desktop: colapsable */}
       <aside
-        className={`hidden md:flex flex-col h-screen bg-white border-r border-neutral-200 transition-all duration-300
+        className={`hidden md:flex flex-col h-screen bg-sky-100 border-r border-neutral-200 transition-all duration-300
         ${collapsed ? "w-20" : "w-64"}`}
       >
         <div className="flex items-center justify-between h-14 px-3 border-b border-neutral-200">
           <span className={`font-semibold text-lg transition-opacity ${collapsed ? "opacity-0" : "opacity-100"}`}>
-            Admin Panel
+            Panel SAFETRACK
           </span>
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -80,7 +78,7 @@ export default function Sidebar({
         </div>
         {List}
         <div className="p-3 border-t border-neutral-200 text-xs text-neutral-500">
-          {!collapsed && <>Versión 1.0 · © 2025</>}
+          {!collapsed && <>Versión 1.0 · © 2025 - PatoDevTechnology</>}
         </div>
       </aside>
 
@@ -91,7 +89,7 @@ export default function Sidebar({
         onClick={() => setMobileOpen(false)}
       />
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-neutral-200 md:hidden
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-sky-100 border-r border-neutral-200 md:hidden
         transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex items-center justify-between h-14 px-3 border-b border-neutral-200">
