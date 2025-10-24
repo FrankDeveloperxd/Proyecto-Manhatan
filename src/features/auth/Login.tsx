@@ -123,7 +123,6 @@ export default function Login() {
             </div>
 
             <div className="mt-5 text-xs text-neutral-300/80">
-              Demo: <b>admin@demo.com / admin123</b> · <b>supervisor@demo.com / super123</b> · <b>empleado@demo.com / emple123</b>
             </div>
           </div>
         </div>
