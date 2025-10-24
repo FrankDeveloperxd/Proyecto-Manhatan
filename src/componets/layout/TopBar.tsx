@@ -10,7 +10,8 @@ export default function TopBar({ onToggleMenu }: TopBarProps) {
   const { theme, toggle } = useTheme();
 
   return (
-    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-neutral-200 dark:bg-neutral-900/80 dark:border-neutral-700">
+    <header className="sticky top-0 z-30 bg-sky-200 border-b border-neutral-200 dark:bg-neutral-900/80 dark:border-neutral-700">
+
       <div className="h-14 flex items-center justify-between px-3 md:px-6">
         {/* Botón menú: solo móvil */}
         <button

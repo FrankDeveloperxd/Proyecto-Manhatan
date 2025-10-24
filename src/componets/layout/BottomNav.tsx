@@ -19,7 +19,6 @@ export default function BottomNav({ role = "empleado" }: Props) {
           { to: "/app/sensors", label: "Sensores", icon: "🛰️" },
           { to: "/app/training", label: "Capacitación", icon: "🎓" },
           { to: "/app/attendance", label: "Asistencia", icon: "🕒" },
-          { to: "/app/profile", label: "Información", icon: "👤" },
           { to: "/app/agenda", label: "Agenda", icon: "🗓️" },
         ].slice(0, 5);
 
