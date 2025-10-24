@@ -80,3 +80,23 @@ export async function listWorkersBrief() {
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, fullName: d.data().fullName }));
 }
+
+// === ADD: listar sensores para la UI ===
+export async function getSensors() {
+  // Trae todos los sensores ordenados por fecha de creación
+  const q = query(sensorsCol, orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+
+  // Adaptamos al shape que usa SensorList (UiSensor)
+  return snap.docs.map((d) => {
+    const data = d.data() as any;
+    return {
+      id: d.id,
+      workerName: data.workerName ?? "Sin nombre",
+      workerId: data.workerId ?? "",
+      topic: data.topic ?? "topic1",         // ej. "topic1"
+      type: data.type ?? "",                 // opcional
+      subscription: data.subscription ?? "", // opcional
+    };
+  });
+}

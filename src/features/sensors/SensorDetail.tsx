@@ -1,9 +1,10 @@
 // src/features/sensors/SensorDetail.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { client as mqtt } from "../../lib/mqttClient"; // ajusta ruta si tu proyecto la tiene distinta
-import { subscribeSensor } from "./api";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import type { Sensor } from "./types";
+import { subscribeSensor } from "./api";
+import { client as mqtt } from "../../lib/mqttClient"; // ajusta ruta si tu proyecto la tiene distinta
+import MapLive from "./MapLive";
 
 const nowTs = () => ({ seconds: Math.floor(Date.now() / 1000) });
 
@@ -126,6 +127,10 @@ export default function SensorDetail({
   const status = useMemo(() => computeStatus(live), [live]);
   const coord = live?.location;
 
+  const TEC_SUP = { lat: -16.39889, lng: -71.53694 }; // fallback
+  const mapPos   = coord ?? TEC_SUP;                   // usa Tecsup si aún no hay fix
+
+
   return (
     <>
       <div className="fixed inset-0 z-40 flex items-center justify-center">
@@ -170,24 +175,29 @@ export default function SensorDetail({
             </section>
 
             {/* Mapa / señal */}
-            <section className="rounded-2xl border bg-white/80 p-4">
+             <section className="rounded-2xl border bg-white/80 p-4">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium">Ubicación</h4>
-                {coord ? (
-                  <a className="text-sm text-sky-700 hover:underline"
-                     href={`https://maps.google.com/?q=${coord.lat},${coord.lng}`} target="_blank" rel="noreferrer">
-                    Abrir en Maps
-                  </a>
-                ) : null}
+                <a
+                  className="text-sm text-sky-700 hover:underline"
+                  href={`https://maps.google.com/?q=${mapPos.lat},${mapPos.lng}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Abrir en Maps
+                </a>
               </div>
 
               <div className="mt-3">
-                {coord ? (
-                  <div className="rounded-xl overflow-hidden border">
-                    <MapFallback lat={coord.lat} lng={coord.lng} />
+                <div className="rounded-xl overflow-hidden border">
+                  <MapLive lat={mapPos.lat} lng={mapPos.lng} showMarker={!!coord} />
+                </div>
+
+                {!coord && (
+                  <div className="text-xs text-slate-500 mt-2">
+                    Mostrando ubicación por defecto (Tecsup Arequipa). El mapa se actualizará automáticamente
+                    cuando llegue la primera lectura GPS.
                   </div>
-                ) : (
-                  <SignalState status={status} />
                 )}
               </div>
             </section>
