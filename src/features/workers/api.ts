@@ -1,12 +1,7 @@
 // src/features/workers/api.ts
 import {
-    collection,
-    doc,
-    onSnapshot,
-    orderBy,
-    query,
-    serverTimestamp,
-    setDoc,
+  collection, doc, onSnapshot, orderBy, query,
+  serverTimestamp, setDoc, updateDoc, deleteDoc, getDoc
 } from "firebase/firestore";
 import {
     getDownloadURL,
@@ -61,4 +56,20 @@ export function subscribeWorkers(cb: (items: Worker[]) => void) {
     const items = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Worker) }));
     cb(items);
   });
+}
+
+export async function getWorker(id: string) {
+  const ref = doc(workersCol, id);
+  const snap = await getDoc(ref);
+  return snap.exists() ? ({ id: snap.id, ...(snap.data() as Worker) }) : null;
+}
+
+export async function updateWorker(id: string, partial: Partial<Worker>) {
+  const ref = doc(workersCol, id);
+  await updateDoc(ref, { ...partial, updatedAt: serverTimestamp() });
+}
+
+export async function deleteWorker(id: string) {
+  const ref = doc(workersCol, id);
+  await deleteDoc(ref);
 }

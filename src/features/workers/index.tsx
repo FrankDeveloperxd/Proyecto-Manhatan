@@ -1,11 +1,14 @@
-// src/features/workers/index.tsx  (o WorkersPage.tsx)
 import { useEffect, useState } from "react";
 import WorkerForm from "./WorkerForm";
 import WorkerQRModal from "./WorkerQRModal";
 import type { Worker } from "./types";
-
-// 👇 usa tu API centralizada
-import { createWorker, subscribeWorkers } from "./api";
+import {
+  createWorker,
+  subscribeWorkers,
+  updateWorker,
+  deleteWorker,
+} from "./api";
+import { Link } from "react-router-dom";
 
 export default function WorkersPage() {
   const [items, setItems] = useState<Worker[]>([]);
@@ -13,37 +16,71 @@ export default function WorkersPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [openQR, setOpenQR] = useState(false);
-  const [lastWorker, setLastWorker] = useState<Worker | undefined>(undefined);
+  const [selected, setSelected] = useState<Worker | undefined>(undefined);
 
-  // Suscripción en tiempo real a /workers (ordenado por createdAt desc)
+  // modo del form
+  const [mode, setMode] = useState<"create" | "edit">("create");
+  const [editing, setEditing] = useState<Worker | null>(null);
+
   useEffect(() => {
     const off = subscribeWorkers((arr) => setItems(arr));
     return () => off();
   }, []);
 
-  // 🔑 Recibe data + file opcional desde el formulario
-  const onSubmit = async (data: Worker, photoFile?: File) => {
+  const handleCreate = async (data: Worker) => {
+    setSaving(true); setError(null);
     try {
-      setSaving(true);
-      setError(null);
-
-      // Sube foto si hay, guarda el doc, y devuelve { id, photoUrl }
-      const { id, photoUrl } = await createWorker(data, photoFile);
-
+      const { id, photoUrl } = await createWorker(data);
       const created: Worker = { ...data, id, photoUrl, registered: true, public: true };
-      setLastWorker(created);
+      setSelected(created);
       setOpenQR(true);
-
       alert("Trabajador agregado correctamente.");
-    } catch (e: any) {
-      console.error(e);
+    } catch (e:any) {
       const msg = e?.message ?? "No se pudo guardar.";
-      setError(msg);
-      alert("Error guardando: " + msg);
-    } finally {
-      setSaving(false);
+      setError(msg); alert("Error guardando: " + msg);
+    } finally { setSaving(false); }
+  };
+
+  const handleUpdate = async (data: Worker) => {
+    if (!data.id) return;
+    setSaving(true); setError(null);
+    try {
+      const { id, ...rest } = data;
+      await updateWorker(id, rest);
+      alert("Trabajador actualizado.");
+      setMode("create");
+      setEditing(null);
+    } catch (e:any) {
+      const msg = e?.message ?? "No se pudo actualizar.";
+      setError(msg); alert("Error: " + msg);
+    } finally { setSaving(false); }
+  };
+
+  const startEdit = (w: Worker) => {
+    setMode("edit");
+    setEditing(w);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelEdit = () => {
+    setMode("create");
+    setEditing(null);
+  };
+
+  const doDelete = async (w: Worker) => {
+    if (!w.id) return;
+    if (!confirm(`¿Borrar al trabajador "${w.fullName}"? Esta acción es permanente.`)) return;
+    try {
+      await deleteWorker(w.id);
+      alert("Eliminado.");
+      if (editing?.id === w.id) cancelEdit();
+    } catch (e:any) {
+      alert("No se pudo borrar: " + (e?.message ?? ""));
     }
   };
+
+  const onSubmit = (data: Worker) =>
+    mode === "edit" ? handleUpdate({ ...editing!, ...data, id: editing!.id }) : handleCreate(data);
 
   return (
     <div className="p-4 space-y-6">
@@ -52,48 +89,63 @@ export default function WorkersPage() {
         {saving && <span className="text-sm opacity-70">Guardando…</span>}
       </div>
 
-      {/* Formulario: envía (data, photoFile) */}
-      <WorkerForm onSubmit={onSubmit} onClear={() => {}} />
+      {/* Formulario: crear/editar */}
+      <WorkerForm
+        mode={mode}
+        initialData={editing ?? undefined}
+        onSubmit={onSubmit}
+        onClear={cancelEdit}
+      />
 
-      {/* Lista simple */}
-      <div className="mt-6 space-y-2">
-        <h3 className="font-semibold">Trabajadores registrados</h3>
-        {items.length === 0 ? (
+      {/* Tabla */}
+      <section className="mt-8">
+        <h3 className="font-semibold mb-2">Trabajadores registrados</h3>
+
+        {!items.length ? (
           <p className="opacity-70">Aún no hay trabajadores registrados.</p>
         ) : (
-          <div className="grid gap-2">
-            {items.map((w) => (
-              <div key={w.id} className="flex items-center justify-between border rounded-lg p-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-200 border">
-                    {w.photoUrl ? (
-                      <img src={w.photoUrl} className="w-full h-full object-cover" />
-                    ) : null}
-                  </div>
-                  <div>
-                    <div className="font-medium">{w.fullName}</div>
-                    <div className="text-xs opacity-70">
-                      {w.role} · {w.code} · {w.area}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  className="btn"
-                  onClick={() => {
-                    setLastWorker(w);
-                    setOpenQR(true);
-                  }}
-                >
-                  Ver QR
-                </button>
-              </div>
-            ))}
+          <div className="overflow-auto border rounded-xl">
+            <table className="min-w-[800px] w-full text-sm">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="text-left p-3 w-[280px]">ID</th>
+                  <th className="text-left p-3">Nombre</th>
+                  <th className="text-left p-3">Rol / Área / Código</th>
+                  <th className="text-right p-3 w-[340px]">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((w) => (
+                  <tr key={w.id} className="border-t">
+                    <td className="p-3 font-mono text-xs">{w.id}</td>
+                    <td className="p-3">{w.fullName}</td>
+                    <td className="p-3">{w.role} · {w.area} · {w.code}</td>
+                    <td className="p-3">
+                      <div className="flex justify-end gap-2">
+                        <button className="btn" onClick={() => { setSelected(w); setOpenQR(true); }}>
+                          QR
+                        </button>
+                        <Link to={`/ficha-worker/${w.id}`} className="btn">
+                          Ver
+                        </Link>
+                        <button className="btn" onClick={() => startEdit(w)}>
+                          Editar
+                        </button>
+                        <button className="btn-secondary" onClick={() => doDelete(w)}>
+                          Borrar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Modal con el QR del último creado/seleccionado */}
-      <WorkerQRModal open={openQR} worker={lastWorker} onClose={() => setOpenQR(false)} />
+      {/* Modal QR */}
+      <WorkerQRModal open={openQR} worker={selected} onClose={() => setOpenQR(false)} />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>

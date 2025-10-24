@@ -3,10 +3,10 @@ import Agenda from "../features/agenda/Agenda";
 import Attendance from "../features/attendance/Attendance";
 import Login from "../features/auth/Login";
 import Profile, { PublicProfilePage } from "../features/profile/Profile";
-import Sensors from "../features/sensors/Sensors";
 import Inicio from "../features/start/Inicio";
 import Training from "../features/training/Training";
 import Guard from "./guard";
+
 
 // Páginas admin
 import Analytics from "../features/admin/Analytics";
@@ -18,6 +18,8 @@ import Users from "../features/admin/Users";
 // ✅ Workers (privado) y ficha pública
 import WorkersPage from "../features/workers";
 import PublicWorkerPage from "../features/workers/PublicWorkerPage";
+import SensorsPage from "../features/sensors";
+import SensorViewPage from "../features/sensors/SensorViewPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/login" replace /> },
@@ -32,7 +34,8 @@ export const router = createBrowserRouter([
     element: <Guard />,
     children: [
       { index: true, element: <Inicio /> },
-      { path: "sensors", element: <Sensors /> },
+      { path: "sensors", element: <SensorsPage /> },
+      { path: "sensors/:sid", element: <SensorViewPage /> },
       { path: "training", element: <Training /> },
       { path: "attendance", element: <Attendance /> },
       { path: "profile", element: <Profile /> },
