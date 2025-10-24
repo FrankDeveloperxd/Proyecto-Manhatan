@@ -7,7 +7,7 @@ export default function WorkerQRModal({
   if (!open || !worker) return null;
 
   // Si hay id, el QR es URL pública; si no, caemos a JSON
-  const url = worker.id ? `${window.location.origin}/ficha-worker/${worker.id}` : null;
+  const url = worker.id ? `${window.location.origin}/#/ficha-worker/${worker.id}` : null;
   const qrValue = url ?? JSON.stringify(worker);
 
   const copy = async () => {
