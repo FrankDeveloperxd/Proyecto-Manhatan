@@ -13,7 +13,7 @@ export default function App() {
       {/* Público */}
       <Route path="/login" element={<Login />} />
 
-      {/* Protegido: panel principal */}
+      {/* Protegido: panel */}
       <Route
         path="/app"
         element={
@@ -23,15 +23,8 @@ export default function App() {
         }
       />
 
-      {/* Protegido: ficha por QR */}
-      <Route
-        path="/ficha-worker/:id"
-        element={
-          <ProtectedRoute>
-            <PublicWorkerPage />
-          </ProtectedRoute>
-        }
-      />
+     {/* PÚBLICO: ficha por QR */}
+     <Route path="/ficha-worker/:id" element={<PublicWorkerPage />} />
 
       <Route path="*" element={<Navigate to="/app" replace />} />
     </Routes>
