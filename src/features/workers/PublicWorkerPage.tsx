@@ -11,6 +11,10 @@ export default function PublicWorkerPage() {
   const [data, setData] = useState<Worker | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [attendance, setAttendance] = useState<{ entrada?: string; salida?: string } | null>(null);
+  const [training, setTraining] = useState<{ total?: number; completados?: number } | null>(null);
+
+
   useEffect(() => {
     (async () => {
       if (!wid) return;
@@ -20,6 +24,23 @@ export default function PublicWorkerPage() {
       setLoading(false);
     })();
   }, [wid]);
+
+  // 👇 NUEVO useEffect para asistencia y capacitación
+  useEffect(() => {
+    if (!data?.id) return;
+
+    (async () => {
+      try {
+        // 🔹 Aquí más adelante puedes conectar con tus colecciones Firestore
+        // Ejemplo temporal (simulado)
+        setAttendance({ entrada: "08:15 AM", salida: "—" });
+        setTraining({ total: 5, completados: 3 });
+      } catch (err) {
+        console.error("Error cargando asistencia/capacitación", err);
+      }
+    })();
+  }, [data?.id]);
+
 
   const initials = useMemo(() => getInitials(data?.fullName || ""), [data?.fullName]);
   const url = useMemo(() => (data?.id ? `${window.location.origin}/ficha-worker/${data.id}` : ""), [data?.id]);
@@ -161,6 +182,25 @@ export default function PublicWorkerPage() {
               empty="Sin condiciones registradas"
               icon={<svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 15h-2v-2h2Zm0-4h-2V7h2Z"/></svg>}
             />
+          </Card>
+
+          {/* 🔥 BLOQUE NUEVO: Asistencia y Capacitación */}
+          <Card title="Asistencia y Capacitación" icon="profile" delay="185ms">
+            <div className="grid md:grid-cols-2 gap-3">
+              {/* Asistencia */}
+              <div className="rounded-xl border border-slate-300/60 bg-white/80 px-4 py-3">
+                <div className="text-slate-500 text-sm mb-1">Asistencia de hoy</div>
+                <div className="text-sm"><b>Entrada:</b> {attendance?.entrada ?? "—"}</div>
+                <div className="text-sm"><b>Salida:</b> {attendance?.salida ?? "—"}</div>
+              </div>
+
+              {/* Capacitación */}
+              <div className="rounded-xl border border-slate-300/60 bg-white/80 px-4 py-3">
+                <div className="text-slate-500 text-sm mb-1">Capacitaciones</div>
+                <div className="text-sm"><b>Total:</b> {training?.total ?? 0}</div>
+                <div className="text-sm"><b>Completadas:</b> {training?.completados ?? 0}</div>
+              </div>
+            </div>
           </Card>
 
           <Card title="Contactos de Emergencia" icon="phone" delay="200ms">

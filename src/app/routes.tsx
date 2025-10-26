@@ -4,8 +4,8 @@ import Attendance from "../features/attendance/Attendance";
 import Login from "../features/auth/Login";
 import Profile, { PublicProfilePage } from "../features/profile/Profile";
 import Inicio from "../features/start/Inicio";
-import Training from "../features/training/Training";
 import Guard from "./guard";
+import TrainingAdminPage from "../features/training/pages/TrainingAdminPage";
 
 
 // Páginas admin
@@ -20,14 +20,19 @@ import WorkersPage from "../features/workers";
 import PublicWorkerPage from "../features/workers/PublicWorkerPage";
 import SensorsPage from "../features/sensors";
 import SensorViewPage from "../features/sensors/SensorViewPage";
+import TrainingLayout from "../features/training/Training";
+import TrainingUsersPage from "../features/training/pages/TrainingUsersPage";
+import TrainingWorkerViewPage from "../features/training/pages/TrainingWorkerPage";
+import AttendanceAdminPage from "../features/attendance/AttendanceAdminPage";
+import AttendanceWorkerViewPage from "../features/attendance/page/AttendanceWorkerViewPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/login" replace /> },
   { path: "/login", element: <Login /> },
 
   // 👇 Rutas públicas para abrir fichas desde el QR
-  { path: "/ficha/:uid", element: <PublicProfilePage /> },       // perfil (ya existía)
-  { path: "/ficha-worker/:wid", element: <PublicWorkerPage /> }, // ✅ nueva para trabajadores
+  { path: "/ficha/:uid", element: <PublicProfilePage /> }, 
+  { path: "/ficha-worker/:wid", element: <PublicWorkerPage /> },
 
   {
     path: "/app",
@@ -36,8 +41,23 @@ export const router = createBrowserRouter([
       { index: true, element: <Inicio /> },
       { path: "sensors", element: <SensorsPage /> },
       { path: "sensors/:sid", element: <SensorViewPage /> },
-      { path: "training", element: <Training /> },
-      { path: "attendance", element: <Attendance /> },
+      {
+        path: "training",
+        element: <TrainingLayout />,
+        children: [
+          { index: true, element: <TrainingAdminPage /> },
+          { path: "usuarios", element: <TrainingUsersPage /> },
+          
+          { path: "attendance", element: <AttendanceAdminPage /> },
+          { path: "attendance/ver/:wid", element: <AttendanceWorkerViewPage /> }, // ⬅️ ESTA
+
+          { path: "ver/:wid", element: <TrainingWorkerViewPage /> },
+        ],
+      },
+
+      { path: "attendance", element: <AttendanceAdminPage /> },
+      { path: "attendance/ver/:wid", element: <AttendanceWorkerViewPage /> },
+
       { path: "profile", element: <Profile /> },
       { path: "agenda", element: <Agenda /> },
 

@@ -26,3 +26,16 @@ export const rtdb = getDatabase(app);
 export const storage = getStorage(app);
 
 setPersistence(auth, browserLocalPersistence);
+// 👉 AÑADIR al final de lib/firebase.ts
+export async function ensureAuth() {
+  // Garantiza que haya usuario autenticado (reglas Firestore lo exigen)
+  if (auth.currentUser) return auth.currentUser;
+
+  try {
+    const cred = await signInAnonymously(auth);
+    return cred.user;
+  } catch (err) {
+    console.error("No se pudo iniciar sesión anónima:", err);
+    throw err;
+  }
+}
