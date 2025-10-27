@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { subscribeWorkers, deleteWorker } from "./api";
-import WorkerQRModal from "./WorkerQRModal";
+import { deleteWorker, subscribeWorkers } from "./api";
 import type { Worker } from "./types";
+import WorkerQRModal from "./WorkerQRModal";
 
 export default function WorkersInlineList() {
   const [items, setItems] = useState<Worker[]>([]);
@@ -47,7 +47,7 @@ export default function WorkersInlineList() {
         {filtered.length ? (
           <div className="hidden md:block table-surface overflow-auto">
             <table className="min-w-[940px] w-full text-sm">
-              <thead className="th-soft">
+              <thead className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <tr>
                   <th className="text-left p-3 w-[300px]">ID</th>
                   <th className="text-left p-3">Nombre</th>

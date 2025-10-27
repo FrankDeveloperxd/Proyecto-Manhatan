@@ -10,7 +10,7 @@ export default function AdminWorkersWidget() {
     <>
     {/* === NUEVO BLOQUE (arriba): Texto izquierda + Carrusel derecha === */}
 <section className="mb-8">
-  <div className="relative rounded-2xl p-[1px] bg-gradient-to-tr from-fuchsia-500 via-cyan-500 to-violet-500">
+  <div className="relative rounded-2xl p-[1px] bg-gradient-to-tr from-sky-400 via-cyan-500 to-blue-600">
     <div className="rounded-2xl bg-white/80 dark:bg-slate-900/70 backdrop-blur-md p-6 md:p-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         {/* Texto izquierda */}
@@ -24,20 +24,21 @@ export default function AdminWorkersWidget() {
           </p>
           <ul className="mt-4 space-y-2 text-sm">
             <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-violet-500" />
-              Registra toda la informacion de tu personal ahora mas facil. 
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-fuchsia-500" />
-              Fichas completas: contacto, cargo, alergias y estudios.
+              <span className="mt-1 h-2 w-2 rounded-full bg-sky-500" />
+              Registra toda la informacion de tu personal ahora más fácil. 
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-2 w-2 rounded-full bg-cyan-500" />
-              Ubicacion en tiempo real de tus trabajadores.
+              Fichas completas: contacto, cargo, alergias y estudios.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full bg-blue-600" />
+              Ubicación en tiempo real de tus trabajadores.
             </li>
           </ul>
-
         </div>
+ 
+  
 
            {/* Carrusel derecha (CSS scroll-snap, sin hooks) */}
 <div className="order-first lg:order-none">

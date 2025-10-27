@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import WorkerForm from "./WorkerForm";
 import WorkerQRModal from "./WorkerQRModal";
-import type { Worker } from "./types";
 import {
   createWorker,
+  deleteWorker,
   subscribeWorkers,
   updateWorker,
-  deleteWorker,
 } from "./api";
-import { Link } from "react-router-dom";
+import type { Worker } from "./types";
 
 export default function WorkersPage() {
   const [items, setItems] = useState<Worker[]>([]);
@@ -85,7 +85,9 @@ export default function WorkersPage() {
   return (
     <div className="p-4 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Registrar trabajador</h1>
+         <h1 className="text-xl font-semibold text-[#4FAEDD]">
+        Registrar trabajador
+      </h1>
         {saving && <span className="text-sm opacity-70">Guardando…</span>}
       </div>
 
@@ -106,7 +108,7 @@ export default function WorkersPage() {
         ) : (
           <div className="overflow-auto border rounded-xl">
             <table className="min-w-[800px] w-full text-sm">
-              <thead className="bg-slate-50">
+              <thead className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                 <tr>
                   <th className="text-left p-3 w-[280px]">ID</th>
                   <th className="text-left p-3">Nombre</th>
