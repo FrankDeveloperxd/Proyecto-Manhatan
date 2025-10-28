@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useTopicRegistry } from "../../lib/topicRegistry";
 import { bindAllSensorsOnce } from "../../lib/mqttBindAll";
-import { getSensors, deleteSensor } from "./api";
+import { useTopicRegistry } from "../../lib/topicRegistry";
+import { deleteSensor, getSensors } from "./api";
 
 type UiSensor = {
   id: string;
@@ -58,7 +58,7 @@ export default function SensorList() {
   return (
     <div className="table-surface p-3">
       <table className="w-full text-sm">
-        <thead className="th-soft">
+        <thead className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
           <tr>
             <th className="p-3 text-left">ID</th>
             <th className="p-3 text-left">Trabajador</th>

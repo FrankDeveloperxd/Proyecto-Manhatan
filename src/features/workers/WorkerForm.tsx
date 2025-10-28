@@ -65,7 +65,8 @@ export default function WorkerForm({ mode="create", initialData, onSubmit, onCle
   return (
     <form onSubmit={submit} className="rounded-2xl border p-0 overflow-hidden bg-white/80 dark:bg-slate-900/60">
       {/* header */}
-      <div className="px-5 py-4 bg-gradient-to-r from-violet-600/90 to-indigo-600/90 text-white">
+      <div className="px-5 py-4 bg-gradient-to-r from-blue-600 to-blue-400 text-white">
+
         <div className="text-sm opacity-90">Formulario</div>
         <div className="text-xl font-semibold">
           {mode==="edit" ? "Editar trabajador" : "Registrar trabajador"}
@@ -146,16 +147,26 @@ export default function WorkerForm({ mode="create", initialData, onSubmit, onCle
         </Section>
       </div>
 
-      {/* footer sticky */}
-      <div className="sticky bottom-0 bg-white/90 dark:bg-slate-900/90 border-t px-5 py-3 flex gap-3 justify-end">
-        <button type="button" className="btn-secondary" onClick={clear} disabled={saving}>
-          {mode==="edit" ? "Cancelar edición" : "Limpiar"}
-        </button>
-        <button type="submit" className="btn-primary" disabled={saving || !valid}>
-          {saving ? "Guardando…" : (mode==="edit" ? "Actualizar" : "Guardar")}
-        </button>
-      </div>
-    </form>
+     {/* footer sticky */}
+<div className="sticky bottom-0 bg-white/90 dark:bg-slate-900/90 border-t px-5 py-3 flex gap-3 justify-end">
+  <button
+    type="button"
+    className="px-4 py-2 rounded-lg font-medium text-white bg-[#4FAEDD] hover:bg-[#3e96c9] transition"
+    onClick={clear}
+    disabled={saving}
+  >
+    {mode === "edit" ? "Cancelar edición" : "Limpiar"}
+  </button>
+
+  <button
+    type="submit"
+    className="px-4 py-2 rounded-lg font-medium text-white bg-[#4FAEDD] hover:bg-[#3e96c9] transition"
+    disabled={saving || !valid}
+  >
+    {saving ? "Guardando…" : (mode === "edit" ? "Actualizar" : "Guardar")}
+  </button>
+</div>
+</form>
   );
 
   function mutEC(i:number, field:"name"|"relationship"|"phone"|"primary", value:any){

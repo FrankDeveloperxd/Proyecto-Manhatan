@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import WorkerForm from "./WorkerForm";
 import WorkerQRModal from "./WorkerQRModal";
-import type { Worker } from "./types";
 import {
   createWorker,
+  deleteWorker,
   subscribeWorkers,
   updateWorker,
-  deleteWorker,
 } from "./api";
+import type { Worker } from "./types";
 
 export default function WorkersQuickPanel({
   open,
@@ -102,7 +102,8 @@ export default function WorkersQuickPanel({
       {/* Drawer */}
       <div className="ml-auto h-full w-full max-w-6xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-2xl relative flex flex-col">
         {/* Header con gradiente */}
-        <div className="p-4 border-b bg-gradient-to-r from-violet-600 to-indigo-600 text-white">
+<div className="p-4 border-b bg-[#4FAEDD] text-white">
+
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <div className="text-sm/none opacity-90">Gestión rápida</div>
@@ -163,7 +164,7 @@ export default function WorkersQuickPanel({
               ) : (
                 <div className="overflow-auto rounded-xl border">
                   <table className="min-w-[860px] w-full text-sm">
-                    <thead className="bg-slate-50 dark:bg-slate-800/60 sticky top-0">
+                    <thead className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
                       <tr>
                         <th className="text-left p-3 w-[280px]">ID</th>
                         <th className="text-left p-3">Nombre</th>
