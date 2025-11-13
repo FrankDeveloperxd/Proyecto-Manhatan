@@ -9,6 +9,7 @@ import {
   useMap,
 } from "react-leaflet";
 import type { LatLngExpression } from "leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 type TrackPoint = {
@@ -25,15 +26,22 @@ type Props = {
   accuracy?: number; // radio en metros aprox
 };
 
+// Tecsup Arequipa (fallback)
 const TECSUP_AQP = { lat: -16.409047, lng: -71.537451 };
+
+// 🔹 Icono personalizado para el trabajador
+const workerIcon = L.icon({
+  iconUrl: "/worker-marker.svg", // archivo que pusimos en /public
+  iconSize: [40, 40],
+  iconAnchor: [20, 40], // punta del pin
+  popupAnchor: [0, -36],
+});
 
 function RecenterOnPosition({ position }: { position: LatLngExpression }) {
   const map = useMap();
-
   useEffect(() => {
     map.setView(position);
   }, [map, position]);
-
   return null;
 }
 
@@ -53,7 +61,7 @@ export default function MapTrack({
   // Polilínea con el rastro (si mandas track en el futuro)
   const polyline: LatLngExpression[] = track.map((p) => [p.lat, p.lng]);
 
-  // Posición del marcador: si hay fix, esa. Si no, la última del track.
+  // Posición del marcador
   const markerPos: LatLngExpression | undefined = hasFix
     ? [lat as number, lng as number]
     : polyline.length
@@ -83,18 +91,14 @@ export default function MapTrack({
         {polyline.length > 1 && (
           <Polyline
             positions={polyline}
-            pathOptions={{
-              color: "#2563eb",
-              weight: 4,
-              opacity: 0.7,
-            }}
+            pathOptions={{ color: "#2563eb", weight: 4, opacity: 0.7 }}
           />
         )}
 
         {/* Punto del trabajador + “burbujita” de precisión */}
         {markerPos && (
           <>
-            <Marker position={markerPos} />
+            <Marker position={markerPos} icon={workerIcon} />
             <Circle
               center={markerPos}
               radius={accuracy}
