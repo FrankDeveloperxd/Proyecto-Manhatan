@@ -1,9 +1,13 @@
 import { doc, getDoc } from "firebase/firestore";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db } from "../../lib/firebase";
 import type { Worker } from "./types";
 import { QRCodeSVG } from "qrcode.react";
+import MapTrack from "../sensors/MapTrack";
+import { client as mqtt, DEFAULT_TOPIC } from "../../lib/mqttClient";
+
+const TECSUP_AQP = { lat: -16.409047, lng: -71.537451 };
 
 export default function PublicWorkerPage() {
   const { wid } = useParams();
@@ -13,6 +17,9 @@ export default function PublicWorkerPage() {
 
   const [attendance, setAttendance] = useState<{ entrada?: string; salida?: string } | null>(null);
   const [training, setTraining] = useState<{ total?: number; completados?: number } | null>(null);
+  // Coordenadas en tiempo real (desde MQTT)
+  const [gpsCoord, setGpsCoord] = useState<{ lat: number; lng: number } | null>(null);
+  const tdRef = useRef(new TextDecoder());
 
 
   useEffect(() => {
@@ -21,6 +28,7 @@ export default function PublicWorkerPage() {
       const ref = doc(db, "workers", wid);
       const snap = await getDoc(ref);
       setData(snap.exists() ? ({ id: snap.id, ...(snap.data() as Worker) }) : null);
+
       setLoading(false);
     })();
   }, [wid]);
@@ -41,11 +49,62 @@ export default function PublicWorkerPage() {
     })();
   }, [data?.id]);
 
+  // Escuchar MQTT (esp32/test) para actualizar el mapa público
+  useEffect(() => {
+    const topic = DEFAULT_TOPIC || "esp32/test";
+
+    console.log("[MQTT][PublicWorker] Suscribiendo a", topic);
+
+    mqtt.subscribe(topic, (err) => {
+      if (err) console.error("[MQTT][PublicWorker] Error al suscribirse:", err);
+    });
+
+    const onMsg = (msgTopic: string, payload: any) => {
+      if (msgTopic !== topic) return;
+
+      const text =
+        typeof payload === "string" ? payload : tdRef.current.decode(payload);
+
+      let json: any = null;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        return; 
+      }
+
+      if (
+        json &&
+        json.lat != null &&
+        json.lng != null &&
+        !Number.isNaN(Number(json.lat)) &&
+        !Number.isNaN(Number(json.lng))
+      ) {
+        setGpsCoord({
+          lat: Number(json.lat),
+          lng: Number(json.lng),
+        });
+      }
+    };
+
+    mqtt.on("message", onMsg);
+
+    return () => {
+      console.log("[MQTT][PublicWorker] Desuscrito de", topic);
+      mqtt.off("message", onMsg);
+      mqtt.unsubscribe(topic);
+    };
+  }, []);
+
 
   const initials = useMemo(() => getInitials(data?.fullName || ""), [data?.fullName]);
   const url = useMemo(() => (data?.id ? `${window.location.origin}/ficha-worker/${data.id}` : ""), [data?.id]);
 
   if (loading) return <Skeleton />;
+
+  const mapLat = gpsCoord?.lat ?? TECSUP_AQP.lat;
+  const mapLng = gpsCoord?.lng ?? TECSUP_AQP.lng;
+  const hasGps = !!gpsCoord;
+
 
   if (!data?.registered || data.public === false) {
     return (
@@ -226,6 +285,56 @@ export default function PublicWorkerPage() {
         </div>
       </main>
 
+                {/* 🌍 Ubicación pública + cómo llegar */}
+        <Card title="Ubicación y Cómo llegar" icon="profile" delay="210ms">
+          <div className="rounded-xl overflow-hidden border">
+            <MapTrack lat={mapLat} lng={mapLng} accuracy={12} />
+          </div>
+
+          <div className="mt-2 text-sm text-slate-600">
+            {hasGps ? (
+              <>Punto de referencia actual del trabajador (última posición enviada por el sensor).</>
+            ) : (
+              <>Punto de referencia del trabajador (Tecsup Arequipa, mientras no llegue señal GPS).</>
+            )}
+          </div>
+
+          <button
+            onClick={() => {
+              const dstLat = mapLat;
+              const dstLng = mapLng;
+
+              const openDir = (originLat?: number, originLng?: number) => {
+                const base = "https://www.google.com/maps/dir/?api=1";
+                const params = new URLSearchParams({
+                  destination: `${dstLat},${dstLng}`,
+                  travelmode: "walking",
+                });
+
+                if (originLat != null && originLng != null) {
+                  params.set("origin", `${originLat},${originLng}`);
+                }
+
+                window.open(`${base}&${params.toString()}`, "_blank");
+              };
+
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => openDir(pos.coords.latitude, pos.coords.longitude),
+                  () => openDir()
+                );
+              } else {
+                openDir();
+              }
+            }}
+            className="mt-3 w-full rounded-xl bg-indigo-600 text-white py-3 text-center font-semibold shadow hover:bg-indigo-700 transition"
+          >
+            🔍 Cómo llegar caminando
+          </button>
+        </Card>
+
+
+
       {/* Menú inferior fijo */}
       <nav className="sticky bottom-0 z-40">
         <div className="max-w-6xl mx-auto px-5 pb-5">
@@ -242,6 +351,8 @@ export default function PublicWorkerPage() {
           </div>
         </div>
       </nav>
+
+      
     </div>
   );
 }

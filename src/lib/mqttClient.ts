@@ -1,23 +1,35 @@
-import mqtt from "mqtt";
+// src/lib/mqttClient.ts
+import mqtt, { MqttClient } from "mqtt";
 
-const MQTT_URL = "wss://mqtt.flespi.io:443";
+export const BROKER = "wss://mqtt.flespi.io/mqtt";
+export const DEFAULT_TOPIC = "esp32/test";
 
-// ✅ usa Opción A (tipada) o B (exprés) para esta línea
-const TOKEN = (import.meta as any).env.VITE_FLESPI_RO_TOKEN as string;
+// puedes dejarlo hardcodeado, es un proyecto de pruebas
+const FLESPI_TOKEN =
+  "i50Eau4vnoOspZZK5PyvsLFAdDgbUEZ8q5xq9QB8hcVR7apoR7zwTR6ajxbIUitg";
 
-if (!TOKEN) {
-  console.error("[MQTT] Falta VITE_FLESPI_RO_TOKEN en .env.local (reinicia el dev server)");
+if (!FLESPI_TOKEN) {
+  console.error(
+    "[MQTT] Falta FLESPI_TOKEN. Revisa src/lib/mqttClient.ts o tu .env.local"
+  );
 }
 
-export const client = mqtt.connect(MQTT_URL, {
-  username: `FlespiToken ${TOKEN}`,
+export const client: MqttClient = mqtt.connect(BROKER, {
+  clientId: "safetrack-web-" + Math.random().toString(16).slice(2),
+  username: `FlespiToken ${FLESPI_TOKEN}`,
   password: "",
   protocolVersion: 5,
   clean: true,
   keepalive: 60,
+  reconnectPeriod: 3000,
 });
 
-client.on("connect", () => console.log("[MQTT] Conectado a flespi (frontend)"));
-client.on("reconnect", () => console.log("[MQTT] Reintentando conexión…"));
-client.on("error", (e) => console.error("[MQTT] Error:", e?.message ?? e));
-client.on("close", () => console.log("[MQTT] Conexión cerrada"));
+client.on("connect", () => {
+  console.log("[MQTT] ✅ Conectado a Flespi (frontend)", { BROKER });
+});
+
+client.on("reconnect", () => console.log("[MQTT] 🔄 Reintentando conexión…"));
+client.on("close", () => console.log("[MQTT] ⚠️ Conexión cerrada"));
+client.on("error", (e) =>
+  console.error("[MQTT] ❌ Error MQTT:", e?.message ?? e)
+);

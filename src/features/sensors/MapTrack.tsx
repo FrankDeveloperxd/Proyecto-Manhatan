@@ -1,111 +1,112 @@
-import { MapContainer, TileLayer, Marker, Polyline, Circle, useMap } from "react-leaflet";
+// src/features/sensors/MapTrack.tsx
+import { useEffect } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Circle,
+  Polyline,
+  useMap,
+} from "react-leaflet";
+import type { LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import L, { Map as LeafletMap } from "leaflet";
-import { useEffect, useMemo, useRef } from "react";
 
-export type TrackPoint = { lat: number; lng: number; ts?: number };
-type StatusKey = "connected" | "unstable" | "disconnected" | "no-data";
+type TrackPoint = {
+  lat: number;
+  lng: number;
+  ts?: number;
+};
 
 type Props = {
   lat?: number;
   lng?: number;
-  lastSeenAt?: number | Date;
+  lastSeenAt?: number;
   track?: TrackPoint[];
-  accuracy?: number;
+  accuracy?: number; // radio en metros aprox
 };
+
+const TECSUP_AQP = { lat: -16.409047, lng: -71.537451 };
+
+function RecenterOnPosition({ position }: { position: LatLngExpression }) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.setView(position);
+  }, [map, position]);
+
+  return null;
+}
 
 export default function MapTrack({
   lat,
   lng,
-  lastSeenAt,
   track = [],
   accuracy = 12,
 }: Props) {
-  const center = useMemo<[number, number] | undefined>(
-    () => (lat != null && lng != null ? [lat, lng] : undefined),
-    [lat, lng]
-  );
+  const hasFix = typeof lat === "number" && typeof lng === "number";
 
-  const status: StatusKey = useMemo(() => {
-    if (!lastSeenAt) return "no-data";
-    const t = lastSeenAt instanceof Date ? lastSeenAt.getTime() : lastSeenAt * 1000;
-    const age = Date.now() - t;
-    if (age < 60_000) return "connected";
-    if (age < 5 * 60_000) return "unstable";
-    return "disconnected";
-  }, [lastSeenAt]);
+  // Centro principal del mapa
+  const center: LatLngExpression = hasFix
+    ? [lat as number, lng as number]
+    : [TECSUP_AQP.lat, TECSUP_AQP.lng];
 
-  // Iconos visuales
-  const liveIcon = useMemo(() => L.divIcon({ className: "pulse-dot" }), []);
-  const staleIcon = useMemo(() => L.divIcon({ className: "stale-dot" }), []);
+  // Polilínea con el rastro (si mandas track en el futuro)
+  const polyline: LatLngExpression[] = track.map((p) => [p.lat, p.lng]);
 
-  // Reducir historial → 1 punto cada 5 min
-  const filteredTrack = useMemo(() => {
-    if (!track?.length) return [];
-    const step = 5 * 60 * 1000; // 5 min
-    const reduced: TrackPoint[] = [];
-    let lastT = 0;
-    for (const p of track) {
-      const ts = (p.ts || Date.now());
-      if (ts - lastT >= step) {
-        reduced.push(p);
-        lastT = ts;
-      }
-    }
-    return reduced;
-  }, [track]);
-
-  const bounds = useMemo(() => {
-    const pts = [...filteredTrack];
-    if (center) pts.push({ lat: center[0], lng: center[1] });
-    if (pts.length < 2) return null;
-    return L.latLngBounds(pts.map((p) => [p.lat, p.lng]));
-  }, [filteredTrack, center]);
-
-  // Polyline (trayectoria reducida)
-  const line: [number, number][] = filteredTrack.map((p) => [p.lat, p.lng]);
-
-  // Subcomponente para fitBounds sin usar whenReady
-  function FitBounds({ bounds }: { bounds: L.LatLngBounds | null }) {
-    const map = useMap();
-    useEffect(() => {
-      if (bounds) setTimeout(() => map.fitBounds(bounds.pad(0.2)), 100);
-    }, [bounds, map]);
-    return null;
-  }
-
-  if (!center) {
-    return (
-      <div
-        style={{ height: 260 }}
-        className="grid place-content-center text-sm text-slate-600 bg-slate-50 rounded-xl"
-      >
-        Sin coordenadas. Aún no hay posición registrada.
-      </div>
-    );
-  }
+  // Posición del marcador: si hay fix, esa. Si no, la última del track.
+  const markerPos: LatLngExpression | undefined = hasFix
+    ? [lat as number, lng as number]
+    : polyline.length
+    ? polyline[polyline.length - 1]
+    : undefined;
 
   return (
-    <MapContainer
-      center={center}
-      zoom={16}
-      style={{ height: 300 }}
-      scrollWheelZoom={false}
+    <div
+      className="w-full rounded-xl overflow-hidden border border-slate-200"
+      style={{ height: 280 }}
     >
-      <TileLayer
-        attribution="© OpenStreetMap"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <MapContainer
+        center={center}
+        zoom={17}
+        scrollWheelZoom={false}
+        style={{ width: "100%", height: "100%" }}
+      >
+        <TileLayer
+          attribution="&copy; OpenStreetMap"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
 
-      {bounds && <FitBounds bounds={bounds} />}
+        {/* 🔁 se recentra cada vez que cambian las coords */}
+        <RecenterOnPosition position={center} />
 
-      {line.length > 1 && <Polyline positions={line} />}
-      <Circle center={center} radius={accuracy} />
+        {/* Línea de ruta (si algún día mandas un array de puntos) */}
+        {polyline.length > 1 && (
+          <Polyline
+            positions={polyline}
+            pathOptions={{
+              color: "#2563eb",
+              weight: 4,
+              opacity: 0.7,
+            }}
+          />
+        )}
 
-      <Marker
-        position={center}
-        icon={status === "connected" || status === "unstable" ? liveIcon : staleIcon}
-      />
-    </MapContainer>
+        {/* Punto del trabajador + “burbujita” de precisión */}
+        {markerPos && (
+          <>
+            <Marker position={markerPos} />
+            <Circle
+              center={markerPos}
+              radius={accuracy}
+              pathOptions={{
+                color: "#3b82f6",
+                weight: 2,
+                fillOpacity: 0.15,
+              }}
+            />
+          </>
+        )}
+      </MapContainer>
+    </div>
   );
 }
