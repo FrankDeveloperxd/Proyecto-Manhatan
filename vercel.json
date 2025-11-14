@@ -3,6 +3,6 @@
     { "source": "/ficha-worker/:id", "destination": "/" },
     { "source": "/app", "destination": "/" },
     { "source": "/app/(.*)", "destination": "/" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
