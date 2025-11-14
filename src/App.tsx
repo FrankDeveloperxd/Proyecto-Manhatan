@@ -8,7 +8,6 @@ import PublicWorkerPage from "./features/workers/PublicWorkerPage";
 export default function App() {
   return (
     <Routes>
-      {/* Redirige "/" hacia "/app" */}
       <Route path="/" element={<Navigate to="/app" replace />} />
 
       {/* Público */}
@@ -24,10 +23,9 @@ export default function App() {
         }
       />
 
-      {/* PÚBLICO: ficha por QR */}
-      <Route path="/ficha-worker/:id" element={<PublicWorkerPage />} />
+     {/* PÚBLICO: ficha por QR */}
+     <Route path="/ficha-worker/:id" element={<PublicWorkerPage />} />
 
-      {/* Cualquier otra ruta -> /app */}
       <Route path="*" element={<Navigate to="/app" replace />} />
     </Routes>
   );
