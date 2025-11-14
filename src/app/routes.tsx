@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createHashRouter, Navigate } from "react-router-dom";
 import Agenda from "../features/agenda/Agenda";
 import Attendance from "../features/attendance/Attendance";
 import Login from "../features/auth/Login";
@@ -26,7 +26,7 @@ import TrainingWorkerViewPage from "../features/training/pages/TrainingWorkerPag
 import AttendanceAdminPage from "../features/attendance/AttendanceAdminPage";
 import AttendanceWorkerViewPage from "../features/attendance/page/AttendanceWorkerViewPage";
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   { path: "/", element: <Navigate to="/login" replace /> },
   { path: "/login", element: <Login /> },
 
