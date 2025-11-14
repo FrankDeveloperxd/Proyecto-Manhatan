@@ -119,7 +119,7 @@ export default function PublicWorkerPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-gradient-to-br from-slate-50 via-white to-cyan-50 text-slate-900 fade-in">
+    <div className="min-h-[100dvh] bg-gradient-to-br from-slate-50 via-white to-cyan-50 fade-in">
       {/* Top hero */}
       <header className="bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500">
         <div className="max-w-6xl mx-auto px-5 py-8 text-white">
