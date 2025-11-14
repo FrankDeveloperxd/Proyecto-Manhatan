@@ -4,10 +4,11 @@
 html, body, #root { height: 100%; }
 
 body {
-  @apply bg-white text-neutral-900 dark:bg-neutral-900 dark:text-white;
+  @apply bg-white text-neutral-900;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 
 
 /* utilidades opcionales */
